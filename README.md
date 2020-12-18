@@ -1,1 +1,1 @@
-# glsl-editor
+# Francisco Romano - Programmer
