@@ -54,7 +54,7 @@ class GeometryGrid
         glEnableVertexAttribArray(0);
         glVertexAttribPointer(0, 2, GL_FLOAT, false, 0, 0);
         this.ibo.Bind();
-        this.ibo.Draw(GL_TRIANGLES, this.size, 0, 1);
+        this.ibo.Draw(GL_TRIANGLES, this.size, 0);
         this.ibo.Unbind();
         glDisableVertexAttribArray(0);
         this.vbo.Unbind();

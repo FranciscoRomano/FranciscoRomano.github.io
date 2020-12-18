@@ -23,19 +23,20 @@ class GLBuffer
         return this;
     };
 
-    Draw(mode, size, offset, instances)
+    Draw(mode, size, offset)
     {
         // check buffer target / type
         switch (this.target)
         {
             // draw array buffer instances
             case GL_ARRAY_BUFFER:
-                glDrawArraysInstanced(mode, offset, size, instances);
+                glDrawArrays(mode, offset, size);
                 break;
 
             // draw element array buffer instances
             case GL_ELEMENT_ARRAY_BUFFER:
-                glDrawElementsInstanced(mode, size, this.Type, offset, instances);
+                glDrawElements(mode, size, this.Type, offset);
+                //glDrawElementsInstanced(mode, size, this.Type, offset, instances);
                 break;
 
             // target buffer not implemented for drawing

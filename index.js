@@ -21,12 +21,12 @@
 /// <reference path="scripts/JsCanvas.js"/>
 /// <reference path="scripts/JsCanvasWebGL.js"/>
 
-const VSOURCE = `#version 300 es
+const VSOURCE = `#version 100
 
-in vec2 position;
+attribute vec2 position;
 
-out vec2 f_uv;
-out vec3 f_point;
+varying vec2 f_uv;
+varying vec3 f_point;
 
 uniform float time;
 uniform mat4 transform;
@@ -75,13 +75,11 @@ void main()
     gl_Position.w = -gl_Position.z;
 }`;
 
-const FSOURCE = `#version 300 es
+const FSOURCE = `#version 100
 precision mediump float;
 
-in vec2 f_uv;
-in vec3 f_point;
-
-out vec4 pixel;
+varying vec2 f_uv;
+varying vec3 f_point;
 
 void main()
 {
@@ -90,7 +88,7 @@ void main()
 
     vec3 pattern = vec3(0.2, 0.6, 0.8);
 
-    pixel = vec4(mix(color1, color2, f_point.z * 20.0) * pattern, 1.0);
+    gl_FragColor = vec4(mix(color1, color2, f_point.z * 20.0) * pattern, 1.0);
 }`;
 
 function Perspective(fov, ar, n, f)
@@ -176,6 +174,16 @@ function MulFloat4x4s(n)
     return n[0];
 };
 
+new JsEventListener(document, 'touchstart', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+}).Bind();
+
+new JsEventListener(document, 'touchmove', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+}).Bind();
+
 new JsEventListener(window, "load", function(e)
 {
     let body = new JsElement(document.body);
@@ -190,7 +198,7 @@ new JsEventListener(window, "load", function(e)
     let fshader = new GLShader(GL_FRAGMENT_SHADER).Compile(FSOURCE);
     let program = new GLProgram().Link([ vshader, fshader ]);
 
-    let grid = new GeometryGrid(1024, 1024);
+    let grid = new GeometryGrid(256, 256);
 
     let old_time = Date.now();
 
