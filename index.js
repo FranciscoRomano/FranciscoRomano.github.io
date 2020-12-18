@@ -187,7 +187,7 @@ new JsEventListener(document, 'touchmove', (e) => {
 new JsEventListener(window, "load", function(e)
 {
     let body = new JsElement(document.body);
-    let canvas = new JsCanvasWebGL(screen.width, screen.height);
+    let canvas = new JsCanvasWebGL(window.innerWidth, window.innerHeight);
     canvas.Style.top = "50%";
     canvas.Style.left = "50%";
     canvas.Style.position = "absolute";
@@ -208,6 +208,10 @@ new JsEventListener(window, "load", function(e)
     new JsEventInterval(() => {
         
         program.Bind();
+        canvas.Width = window.innerWidth;
+        canvas.Height = window.innerHeight;
+        glViewport(0, 0, canvas.Width, canvas.Height);
+        glClearColor(225 / 255, 1.0, 1.0, 1.0);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
         glUniform1f(program.Uniform("time"), (Date.now() - old_time) / 1000.0);
         glUniformMatrix4fv(program.Uniform("transform"), false, MulFloat4x4s([
@@ -216,9 +220,11 @@ new JsEventListener(window, "load", function(e)
                 RotateX(0.6),
             ]),
         ]));
+        
+        const AR = window.innerWidth / window.innerHeight;
         glUniformMatrix4fv(program.Uniform("projection"), false, Perspective(
             Math.PI * 0.5,
-            1.0,
+            Math.min(AR, 1.0 - AR),
             0.1,
             1000
         ));
