@@ -8,9 +8,10 @@ let WebGL = {
     // bind webgl context
     Bind: (gl) => WebGL.gl = gl,
     // initialize webgl context
-    Init: (canvas, options) => WebGL.gl = canvas.getContext("webgl", options),
+    Init: (canvas, options) => WebGL.gl = canvas.getContext("webgl2", options),
 };
 
+/** Declarations **********************************************************************************/
 /** Declarations **********************************************************************************/
 
 // https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API/Constants#Standard_WebGL_1_constants

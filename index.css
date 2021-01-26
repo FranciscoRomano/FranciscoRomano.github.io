@@ -65,12 +65,17 @@ fr-header > fr-logo
 {
     width: 56px;
     height: 56px;
-    opacity: 1.0;
+    opacity: 0.6;
     align-self: flex-start;
     background-size: 56px;
     background-image: url('styling/images/logo@256.png');
     background-repeat: no-repeat;
     background-position: 0 center;
+}
+
+fr-header > fr-logo:hover
+{
+    opacity: 1.0;
 }
 
 fr-header > fr-empty
@@ -84,7 +89,7 @@ fr-temp-message
     left: 50%;
     width: 100%;
     z-index: 100;
-    opacity: 0.1;
+    opacity: 0.3;
     position: fixed;
     font-size: 8vw;
     transform: translate(-50%, -50%);

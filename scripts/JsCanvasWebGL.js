@@ -1,5 +1,5 @@
 //~~ Dependencies ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
-/// <reference path="webgl/webgl2.api.js"/>
+/// <reference path="webgl/webgl.api.js"/>
 /// <reference path="JsCanvas.js"/>
 //~~ Declarations ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
 

@@ -1,5 +1,6 @@
 //~~ Dependencies ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
-/// <reference path="dom/JsElement.js"/>
+/// <reference path="GeometryIndexBuffer.js"/>
+/// <reference path="GeometryVertexBuffer.js"/>
 //~~ Declarations ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
 
 class GeometryGrid
@@ -11,8 +12,8 @@ class GeometryGrid
         this.rows = Math.max(2.0, rows + 1.0);
 
         // calculate grid cell size
-        const dx = 1.0 / (this.cols - 1.0);
-        const dy = 1.0 / (this.rows - 1.0);
+        const dx = 2.0 / (this.cols - 1.0);
+        const dy = 2.0 / (this.rows - 1.0);
         
         let indices = [];
         let vertices = [];
@@ -23,7 +24,7 @@ class GeometryGrid
             // iterate through cell grid rows
             for (let x = 0; x < this.cols; x++)
             {
-                vertices.push(-0.5 + (x * dx), -0.5 + (y * dy));
+                vertices.push(-1.0 + (x * dx), -1.0 + (y * dy));
 
                 if (y < (this.rows - 1) && x < (this.cols - 1))
                 {
@@ -36,14 +37,12 @@ class GeometryGrid
                 }
             }
         }
-        
-        console.log(indices, vertices);
 
-        this.ibo = new GLBuffer(GL_ELEMENT_ARRAY_BUFFER, GL_UNSIGNED_INT);
-        this.ibo.Bind().SetData(indices, GL_STATIC_DRAW).Unbind();
+        this.ibo = new GeometryIndexBuffer(GL_UNSIGNED_INT, GL_STATIC_DRAW);
+        this.ibo.Bind().SetData(indices).Unbind();
 
-        this.vbo = new GLBuffer(GL_ARRAY_BUFFER, GL_FLOAT);
-        this.vbo.Bind().SetData(vertices, GL_STATIC_DRAW).Unbind();
+        this.vbo = new GeometryVertexBuffer(0, GL_FLOAT_VEC2, GL_STATIC_DRAW);
+        this.vbo.Bind().SetData(vertices).Unbind();
 
         this.size = indices.length;
     };
@@ -53,9 +52,11 @@ class GeometryGrid
         this.vbo.Bind();
         glEnableVertexAttribArray(0);
         glVertexAttribPointer(0, 2, GL_FLOAT, false, 0, 0);
+
         this.ibo.Bind();
-        this.ibo.Draw(GL_TRIANGLES, this.size, 0);
+        glDrawElements(GL_TRIANGLES, this.size, GL_UNSIGNED_INT, 0);
         this.ibo.Unbind();
+
         glDisableVertexAttribArray(0);
         this.vbo.Unbind();
 

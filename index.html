@@ -1,47 +1,95 @@
 <!DOCTYPE html>
 <html>
-<head>
-    <meta charset='utf-8'>
-    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
-    <title> Francisco Romano </title>
-    <meta name='viewport' content='width=device-width, initial-scale=1'>
-    <link rel='stylesheet' type='text/css' media='screen' href='index.css'>
-    
-    <link rel="preconnect" href="https://fonts.gstatic.com">
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@500&display=swap" rel="stylesheet"> 
-    <link href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@900&display=swap" rel="stylesheet"> 
+    <head>
+        <meta charset='utf-8'>
+        <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+        <title> Francisco Romano </title>
+        <meta name='viewport' content='width=device-width, initial-scale=1'>
+        <link rel='stylesheet' type='text/css' media='screen' href='index.css'>
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com">
+        <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@500&display=swap" rel="stylesheet"> 
+        <link href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@900&display=swap" rel="stylesheet"> 
 
-    <script src="scripts/dom/JsElement.js"></script>
-    <script src="scripts/dom/JsEventGroup.js"></script>
-    <script src="scripts/dom/JsEventInterval.js"></script>
-    <script src="scripts/dom/JsEventListener.js"></script>
-    <script src="scripts/dom/JsEventTimeout.js"></script>
-    <script src="scripts/maths/float2.js"></script>
-    <script src="scripts/maths/float3.js"></script>
-    <script src="scripts/maths/float4.js"></script>
-    <script src="scripts/maths/float4x4.js"></script>
-    <script src="scripts/webgl/webgl2.api.js"></script>
-    <script src="scripts/webgl/webgl2.GLArray.js"></script>
-    <script src="scripts/webgl/webgl2.GLBuffer.js"></script>
-    <script src="scripts/webgl/webgl2.GLProgram.js"></script>
-    <script src="scripts/webgl/webgl2.GLShader.js"></script>
-    <script src="scripts/webgl/webgl2.GLType.js"></script>
-    <script src="scripts/GeometryGrid.js"></script>
-    <script src="scripts/JsCanvas.js"></script>
-    <script src="scripts/JsCanvasWebGL.js"></script>
+        <!--
+            --------------------------------------------------
+            https://github.com/FranciscoRomano/INFT561
+            MATHS/CONSOLE DEMO
 
-    <script src="index.js"></script>
-</head>
-<body>
-    <fr-header>
-        <fr-logo></fr-logo>
-        <fr-empty></fr-empty>
-        <a href="#"> About </a>
-        <a href="#"> Projects </a>
-        <a href="#"> Contact Me </a>
-    </fr-header>
-    <fr-temp-message>
-        THIS WEBSITE IS <br> UNDER CONSTRUCTION
-    </fr-temp-message>
-</body>
+            First custom renderer that is able to draw simple primitives: points, lines and triangles.
+            This is a culmination of past knowledge in 3D graphics, into a single project.
+
+            --------------------------------------------------
+            https://github.com/FranciscoRomano/INFT563
+            MATHS/CONSOLE DEMO
+
+            Flocking algorithm running around 100 units at a decent speed.
+            This was my first attempt at AI, using the windows console for graphics and visualization
+
+            --------------------------------------------------
+            https://github.com/FranciscoRomano/INFT567
+            MATHS/CONSOLE DEMO
+
+            UDP socket communication between linux and windows machines.
+            I created a simple game like pong to understand how network communication works in its raw state.
+
+            --------------------------------------------------
+            https://github.com/FranciscoRomano/INFT568
+            MATHS/CONSOLE DEMO
+
+            First cross platform project simulating physics on windows and linux.
+            Using the X11 & Win32 API to handle graphics, and a common structure for handling physics objects in the scene
+
+            --------------------------------------------------
+            https://github.com/FranciscoRomano/INFT566
+            MATHS/CONSOLE DEMO
+
+            OpenGL 3.2 graphics rendering with deffered light rendering.
+            Working on both linux and windows machines, with few problems on NVidia graphics cards (currently working on AMD)
+            --------------------------------------------------
+        -->
+
+        <script src="scripts/dom/JsElement.js"></script>
+        <script src="scripts/dom/JsEventGroup.js"></script>
+        <script src="scripts/dom/JsEventInterval.js"></script>
+        <script src="scripts/dom/JsEventListener.js"></script>
+        <script src="scripts/dom/JsEventTimeout.js"></script>
+        <script src="scripts/maths/float2.js"></script>
+        <script src="scripts/maths/float3.js"></script>
+        <script src="scripts/maths/float4.js"></script>
+        <script src="scripts/maths/float4x4.js"></script>
+        <script src="scripts/webgl/webgl.api.js"></script>
+        <script src="scripts/webgl/webgl.GLArray.js"></script>
+        <script src="scripts/webgl/webgl.GLAttrib.js"></script>
+        <script src="scripts/webgl/webgl.GLBuffer.js"></script>
+        <script src="scripts/webgl/webgl.GLFormat.js"></script>
+        <script src="scripts/webgl/webgl.GLFramebuffer.js"></script>
+        <script src="scripts/webgl/webgl.GLProgram.js"></script>
+        <script src="scripts/webgl/webgl.GLShader.js"></script>
+        <script src="scripts/webgl/webgl.GLTexture.js"></script>
+        <script src="scripts/webgl/webgl.GLType.js"></script>
+
+
+        <script src="scripts/GeometryIndexBuffer.js"></script>
+        <script src="scripts/GeometryVertexBuffer.js"></script>
+
+        <script src="scripts/GeometryGrid.js"></script>
+        <script src="scripts/GeometryQuad.js"></script>
+        <script src="scripts/JsCanvas.js"></script>
+        <script src="scripts/JsCanvasWebGL.js"></script>
+
+        <script src="index.js"></script>
+    </head>
+    <body>
+        <fr-header>
+            <fr-logo></fr-logo>
+            <fr-empty></fr-empty>
+            <a href="#"> About </a>
+            <a href="#"> Projects </a>
+            <a href="#"> Contact Me </a>
+        </fr-header>
+        <fr-temp-message>
+            THIS WEBSITE IS <br> UNDER CONSTRUCTION
+        </fr-temp-message>
+    </body>
 </html>

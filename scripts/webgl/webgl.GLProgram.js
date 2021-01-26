@@ -1,6 +1,6 @@
 /** Dependencies **********************************************************************************/
-/// <reference path="webgl2.api.js" />
-/// <reference path="webgl2.GLShader.js" />
+/// <reference path="webgl.api.js" />
+/// <reference path="webgl.GLShader.js" />
 /** Declarations **********************************************************************************/
 
 class GLProgram
@@ -20,7 +20,27 @@ class GLProgram
         return this;
     };
 
-    Link(shaders = [])
+    Unbind()
+    {
+        // unbind program
+        glUseProgram(NULL);
+
+        return this;
+    };
+
+    Attrib(name)
+    {
+        // get program attrib location
+        return glGetAttribLocation(this.id, name);
+    };
+
+    Uniform(name)
+    {
+        // get program uniform location
+        return glGetUniformLocation(this.id, name);
+    };
+
+    Compile(shaders = [])
     {
         // attach shaders to program
         shaders.forEach(shader => glAttachShader(this.id, shader.id));
@@ -49,26 +69,6 @@ class GLProgram
         shaders.forEach(shader => glDetachShader(this.id, shader.id));
 
         return this;
-    };
-
-    Unbind()
-    {
-        // unbind program
-        glUseProgram(NULL);
-
-        return this;
-    };
-
-    Attrib(name)
-    {
-        // get program attrib location
-        return glGetAttribLocation(this.id, name);
-    };
-
-    Uniform(name)
-    {
-        // get program uniform location
-        return glGetUniformLocation(this.id, name);
     };
 };
 

@@ -10,6 +10,7 @@ class JsCanvas extends JsElement
         super(JsElement.XHTML("canvas"));
         this.SetAttribute("width", width);
         this.SetAttribute("height", height);
+        this.Style.backgroundColor = "#2244cc"
     };
 
     get Width()
