@@ -40,9 +40,11 @@ class GeometryGrid
 
         this.ibo = new GeometryIndexBuffer(GL_UNSIGNED_INT, GL_STATIC_DRAW);
         this.ibo.Bind().SetData(indices).Unbind();
+        console.log(indices);
 
         this.vbo = new GeometryVertexBuffer(0, GL_FLOAT_VEC2, GL_STATIC_DRAW);
         this.vbo.Bind().SetData(vertices).Unbind();
+        console.log(vertices);
 
         this.size = indices.length;
     };

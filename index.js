@@ -27,128 +27,189 @@ const VSOURCE = `#version 100
 
 attribute vec2 position;
 
-varying vec2 f_uv;
-varying vec3 f_point;
-varying float f_height;
-
-uniform float time;
 uniform mat4 transform;
 uniform mat4 projection;
 
-vec3 hash3(vec2 p)
-{
-    vec3 q = vec3(dot(p,vec2(127.1,311.7)), dot(p,vec2(269.5,183.3)), dot(p,vec2(419.2,371.9)));
-	return fract(sin(q)*43758.5453);
-}
-
-float iqnoise(in vec2 x, float u, float v)
-{
-    vec2 p = floor(x);
-    vec2 f = fract(x);
-		
-	float k = 1.0+63.0*pow(1.0-v,4.0);
-	
-	float va = 0.0;
-	float wt = 0.0;
-    for( int j=-2; j<=2; j++ )
-    for( int i=-2; i<=2; i++ )
-    {
-        vec2 g = vec2( float(i),float(j) );
-		vec3 o = hash3( p + g )*vec3(u,u,1.0);
-		vec2 r = g - f + o.xy;
-		float d = dot(r,r);
-		float ww = pow( 1.0-smoothstep(0.0,1.414,sqrt(d)), k );
-		va += o.z*ww;
-		wt += ww;
-    }
-	
-    return va/wt;
-}
-
 void main()
 {
-    f_uv = (position.xy + 1.0) / 2.0;
-    f_height = 0.0;
-    f_height += iqnoise((f_uv * vec2( 1.0, 1.0) * 80.0) + vec2(0.6, 0.4) * time * 1.0, 1.0, 1.0);
-    f_height += iqnoise((f_uv * vec2( 1.0,-1.0) * 40.0) + vec2(0.6, 0.4) * time * 1.0, 1.0, 1.0);
-    f_height += iqnoise((f_uv * vec2(-1.0,-1.0) * 20.0) + vec2(0.6, 0.4) * time * 1.0, 1.0, 1.0);
-    f_height += iqnoise((f_uv * vec2(-1.0, 1.0) * 10.0) + vec2(0.6, 0.4) * time * 1.0, 1.0, 1.0);
-    f_height /= 4.0;
-
-    f_point = vec3(position.x * 2.0, position.y * 2.0, f_height * 0.1);
-    // gl_Position = projection * transform * vec4(f_point.xyz, 1.0);
-    // gl_Position = transform * vec4(f_point.xyz, 1.0);
-    // gl_Position.w = -gl_Position.z;
-
     gl_Position = vec4(position.xy, 0.0, 1.0);
 }`;
 
 const FSOURCE = `#version 100
 precision mediump float;
+precision mediump int;
+//https://www.shadertoy.com/view/3scfD7
 
-varying vec2 f_uv;
-varying vec3 f_point;
-varying float f_height;
-
+uniform float time;
 uniform vec2 u_screen_size;
 
-vec3 hash3(vec2 p)
-{
-    vec3 q = vec3(dot(p,vec2(127.1,311.7)), dot(p,vec2(269.5,183.3)), dot(p,vec2(419.2,371.9)));
-	return fract(sin(q)*43758.5453);
+#define DRAG_MULT 0.048
+#define ITERATIONS_RAYMARCH 13
+#define ITERATIONS_NORMAL 48
+#define Time (time)
+#define Resolution (u_screen_size.xy)
+
+
+vec2 wavedx(vec2 position, vec2 direction, float speed, float frequency, float timeshift) {
+    float x = dot(direction, position) * frequency + timeshift * speed;
+    float wave = exp(sin(x) - 1.0);
+    float dx = wave * cos(x);
+    return vec2(wave, -dx);
 }
 
-float iqnoise(in vec2 x, float u, float v)
-{
-    vec2 p = floor(x);
-    vec2 f = fract(x);
-		
-	float k = 1.0+63.0*pow(1.0-v,4.0);
-	
-	float va = 0.0;
-	float wt = 0.0;
-    for( int j=-2; j<=2; j++ )
-    for( int i=-2; i<=2; i++ )
-    {
-        vec2 g = vec2( float(i),float(j) );
-		vec3 o = hash3( p + g )*vec3(u,u,1.0);
-		vec2 r = g - f + o.xy;
-		float d = dot(r,r);
-		float ww = pow( 1.0-smoothstep(0.0,1.414,sqrt(d)), k );
-		va += o.z*ww;
-		wt += ww;
+float getwaves(vec2 position, int iterations){
+	float iter = 0.0;
+    float phase = 6.0;
+    float speed = 2.0;
+    float weight = 1.0;
+    float w = 0.0;
+    float ws = 0.0;
+
+    const int MAX_ITERATIONS = 100;
+
+    for(int i=0;i<MAX_ITERATIONS;i++){
+        vec2 p = vec2(sin(iter), cos(iter));
+        vec2 res = wavedx(position, p, speed, phase, Time);
+        position += normalize(p) * res.y * weight * DRAG_MULT;
+        w += res.x * weight;
+        iter += 12.0;
+        ws += weight;
+        weight = mix(weight, 0.0, 0.2);
+        phase *= 1.18;
+        speed *= 1.07;
     }
-	
-    return va/wt;
+    return w / ws;
+}
+
+float raymarchwater(vec3 camera, vec3 start, vec3 end, float depth){
+    vec3 pos = start;
+    float h = 0.0;
+    float hupper = depth;
+    float hlower = 0.0;
+    vec2 zer = vec2(0.0);
+    vec3 dir = normalize(end - start);
+    float eps = 0.01;
+
+    const int MAX_ITERATIONS = 318;
+
+    for(int i = 0; i < MAX_ITERATIONS; i++)
+    {
+        h = getwaves(pos.xz * 0.1, ITERATIONS_RAYMARCH/int(1.0+length(pos/100.0))) * depth - depth;
+        float dist_pos = distance(pos, camera);
+        if(h + eps*dist_pos > pos.y) {
+            return dist_pos;
+        }
+        pos += dir * (pos.y - h);
+        eps *= 1.01;
+    }
+    return -1.0;
+}
+
+float H = 0.0;
+vec3 normal(vec2 pos, float e, float depth){
+    vec2 ex = vec2(e, 0);
+    H = getwaves(pos.xy * 0.1, ITERATIONS_NORMAL) * depth;
+    vec3 a = vec3(pos.x, H, pos.y);
+    return normalize(cross(normalize(a-vec3(pos.x - e, getwaves(pos.xy * 0.1 - ex.xy * 0.1, ITERATIONS_NORMAL) * depth, pos.y)), 
+                           normalize(a-vec3(pos.x, getwaves(pos.xy * 0.1 + ex.yx * 0.1, ITERATIONS_NORMAL) * depth, pos.y + e))));
+}
+mat3 rotmat(vec3 axis, float angle)
+{
+	axis = normalize(axis);
+	float s = sin(angle);
+	float c = cos(angle);
+	float oc = 1.0 - c;
+	return mat3(oc * axis.x * axis.x + c, oc * axis.x * axis.y - axis.z * s,  oc * axis.z * axis.x + axis.y * s, 
+	oc * axis.x * axis.y + axis.z * s,  oc * axis.y * axis.y + c,           oc * axis.y * axis.z - axis.x * s, 
+	oc * axis.z * axis.x - axis.y * s,  oc * axis.y * axis.z + axis.x * s,  oc * axis.z * axis.z + c);
+}
+
+vec3 getRay(vec2 uv){
+    uv = (uv * 2.0 - 1.0) * vec2(Resolution.x / Resolution.y, 1.0);
+	vec3 proj = normalize(vec3(uv.x, uv.y, 1.0) + vec3(uv.x, uv.y, -1.0) * pow(length(uv), 2.0) * 0.05);	
+    if(Resolution.x < 400.0) return proj;
+	vec3 ray = rotmat(vec3(0.0, -1.0, 0.0), 3.0 * (2.0 - 1.0)) * proj;
+    return ray.xyz;
+}
+
+float intersectPlane(vec3 origin, vec3 direction, vec3 point, vec3 normal)
+{ 
+    return clamp(dot(point - origin, normal) / dot(direction, normal), -1.0, 9991999.0); 
+}
+
+vec3 extra_cheap_atmosphere(vec3 raydir, vec3 sundir){
+	sundir.y = max(sundir.y, -0.07);
+	float special_trick = 1.0 / (raydir.y * 1.0 + 0.1);
+	float special_trick2 = 1.0 / (sundir.y * 11.0 + 1.0);
+	float raysundt = pow(abs(dot(sundir, raydir)), 2.0);
+	float sundt = pow(max(0.0, dot(sundir, raydir)), 8.0);
+	float mymie = sundt * special_trick * 0.2;
+	vec3 suncolor = mix(vec3(1.0), max(vec3(0.0), vec3(1.0) - vec3(5.5, 13.0, 22.4) / 22.4), special_trick2);
+	vec3 bluesky= vec3(5.5, 13.0, 22.4) / 22.4 * suncolor;
+	vec3 bluesky2 = max(vec3(0.0), bluesky - vec3(5.5, 13.0, 22.4) * 0.002 * (special_trick + -6.0 * sundir.y * sundir.y));
+	bluesky2 *= special_trick * (0.24 + raysundt * 0.24);
+	return bluesky2 * (1.0 + 1.0 * pow(1.0 - raydir.y, 3.0)) + mymie * suncolor;
+} 
+vec3 getatm(vec3 ray){
+ 	return extra_cheap_atmosphere(ray, normalize(vec3(1.0))) * 0.5;
+    
+}
+
+float sun(vec3 ray){
+ 	vec3 sd = normalize(vec3(1.0));   
+    return pow(max(0.0, dot(ray, sd)), 528.0) * 110.0;
+}
+vec3 aces_tonemap(vec3 color){	
+	mat3 m1 = mat3(
+        0.59719, 0.07600, 0.02840,
+        0.35458, 0.90834, 0.13383,
+        0.04823, 0.01566, 0.83777
+	);
+	mat3 m2 = mat3(
+        1.60475, -0.10208, -0.00327,
+        -0.53108,  1.10813, -0.07276,
+        -0.07367, -0.00605,  1.07602
+	);
+	vec3 v = m1 * color;    
+	vec3 a = v * (v + 0.0245786) - 0.000090537;
+	vec3 b = v * (0.983729 * v + 0.4329510) + 0.238081;
+	return pow(clamp(m2 * (a / b), 0.0, 1.0), vec3(1.0 / 2.2));	
 }
 
 void main()
 {
     vec2 uv = gl_FragCoord.xy / u_screen_size;
-    //gl_FragColor = iqnoise(uv, 1.0, 1.0) * vec4(1.0);
 
-    vec3 color1 = vec3(0.3, 0.7, 0.9);
-    vec3 color2 = vec3(0.0, 0.4, 0.6);
+    float waterdepth = 2.1;
+	vec3 wfloor = vec3(0.0, -waterdepth, 0.0);
+	vec3 wceil = vec3(0.0, 0.0, 0.0);
+	vec3 orig = vec3(0.0, 2.0, 0.0);
+	vec3 ray = getRay(uv);
+	float hihit = intersectPlane(orig, ray, wceil, vec3(0.0, 1.0, 0.0));
+    if(ray.y >= -0.01){
+        vec3 C = getatm(ray) * 2.0 + sun(ray);
+        //tonemapping
+    	C = aces_tonemap(C);
+        gl_FragColor = vec4( C,1.0);   
+        return;
+    }
+	float lohit = intersectPlane(orig, ray, wfloor, vec3(0.0, 1.0, 0.0));
+    vec3 hipos = orig + ray * hihit;
+    vec3 lopos = orig + ray * lohit;
+	float dist = raymarchwater(orig, hipos, lopos, waterdepth);
+    vec3 pos = orig + ray * dist;
 
-    vec2 coord = vec2(gl_FragCoord.x, gl_FragCoord.y * mix(1.0, 3.0, uv.y)) / 30.0;
-
-    //gl_FragColor = vec4(mix(color1, color2, max(iqnoise(coord, 1.0, 0.1), 0.0)), 1.0);
-
-    vec3 pattern = vec3(0.2, 0.6, 0.8);
-    vec3 far_water_color1 = vec3(0.3, 0.7, 0.9);
-    vec3 far_water_color2 = vec3(0.4, 0.8, 1.0);
-    vec3 far_water_color_final = mix(far_water_color1, far_water_color2, f_height);
-
-
-    vec3 near_water_color1 = vec3(0.0, 0.4, 0.6);
-    vec3 near_water_color2 = vec3(0.4, 0.8, 1.0);
-    vec3 near_water_color_final = mix(near_water_color1, near_water_color2, uv.y);
-
-
-    //gl_FragColor = vec4(far_water_color_final, 1.0);
+	vec3 N = normal(pos.xz, 0.001, waterdepth);
+    vec2 velocity = N.xz * (1.0 - N.y);
+    N = mix(vec3(0.0, 1.0, 0.0), N, 1.0 / (dist * dist * 0.01 + 1.0));
+    vec3 R = reflect(ray, N);
+    float fresnel = (0.04 + (1.0-0.04)*(pow(1.0 - max(0.0, dot(-N, ray)), 5.0)));
+	
+    vec3 C = fresnel * getatm(R) * 2.0 + fresnel * sun(R);
+    //tonemapping
+    C = aces_tonemap(C);
     
-    gl_FragColor = vec4(far_water_color_final * near_water_color_final * pattern, 1.0);
-    // //gl_FragColor = vec4(1.0);
+    gl_FragColor = vec4(C,1.0);
 }`;
 
 function Perspective(fov, ar, n, f)
@@ -260,7 +321,7 @@ new JsEventListener(window, "load", function(e)
 
     
 
-    let grid = new GeometryGrid(16, 16);
+    let grid = new GeometryGrid(1, 1);
 
 
     //let grid = new GeometryGrid(512, 512);
