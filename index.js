@@ -45,7 +45,7 @@ uniform vec2 u_screen_size;
 
 #define DRAG_MULT 0.048
 #define ITERATIONS_RAYMARCH 13
-#define ITERATIONS_NORMAL 48
+#define ITERATIONS_NORMAL 13
 #define Time (time)
 #define Resolution (u_screen_size.xy)
 
@@ -90,7 +90,8 @@ float raymarchwater(vec3 camera, vec3 start, vec3 end, float depth){
     vec3 dir = normalize(end - start);
     float eps = 0.01;
 
-    const int MAX_ITERATIONS = 318;
+    //const int MAX_ITERATIONS = 318;
+    const int MAX_ITERATIONS = 32;
 
     for(int i = 0; i < MAX_ITERATIONS; i++)
     {
@@ -187,7 +188,7 @@ void main()
 	vec3 ray = getRay(uv);
 	float hihit = intersectPlane(orig, ray, wceil, vec3(0.0, 1.0, 0.0));
     if(ray.y >= -0.01){
-        vec3 C = getatm(ray) * 2.0 + sun(ray);
+        vec3 C = getatm(ray) * 2.0;
         //tonemapping
     	C = aces_tonemap(C);
         gl_FragColor = vec4( C,1.0);   
@@ -205,7 +206,7 @@ void main()
     vec3 R = reflect(ray, N);
     float fresnel = (0.04 + (1.0-0.04)*(pow(1.0 - max(0.0, dot(-N, ray)), 5.0)));
 	
-    vec3 C = fresnel * getatm(R) * 2.0 + fresnel * sun(R);
+    vec3 C = fresnel * getatm(R) * 2.0;
     //tonemapping
     C = aces_tonemap(C);
     
@@ -311,6 +312,8 @@ new JsEventListener(window, "load", function(e)
     let canvas = new JsCanvasWebGL(window.innerWidth, window.innerHeight);
     canvas.Style.top = "50%";
     canvas.Style.left = "50%";
+    canvas.Style.width = "100%";
+    canvas.Style.height = "100%";
     canvas.Style.position = "absolute";
     canvas.Style.transform = "translate(-50%, -50%)";
     canvas.Style.border = "4px solid #fff";

@@ -28,6 +28,11 @@ body
           user-select: none;
 }
 
+canvas
+{
+    /* filter: blur(8px); */
+}
+
 fr-header
 {
     top: 0px;
