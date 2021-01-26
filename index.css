@@ -14,23 +14,33 @@
     background-size: auto;
 } */
 
+html, body
+{
+}
+
 body
 {
+    width: 100%;
     color: #fff;
     overflow: hidden;
-    font-family: 'Roboto', 'sans-serif';
 
--webkit-touch-callout: none;
-  -webkit-user-select: none;
-   -khtml-user-select: none;
-     -moz-user-select: none;
-      -ms-user-select: none;
-          user-select: none;
+    font-family: 'Roboto', 'sans-serif';
+    
+    -webkit-box-sizing: border-box;
+       -moz-box-sizing: border-box;
+            box-sizing: border-box;
+
+    -webkit-touch-callout: none;
+      -webkit-user-select: none;
+       -khtml-user-select: none;
+         -moz-user-select: none;
+          -ms-user-select: none;
+              user-select: none;
 }
 
 canvas
 {
-    /* filter: blur(8px); */
+    filter: blur(4px);
 }
 
 fr-header

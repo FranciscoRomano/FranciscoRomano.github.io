@@ -60,7 +60,7 @@ vec2 wavedx(vec2 position, vec2 direction, float speed, float frequency, float t
 float getwaves(vec2 position, int iterations){
 	float iter = 0.0;
     float phase = 6.0;
-    float speed = 2.0;
+    float speed = 0.5;
     float weight = 1.0;
     float w = 0.0;
     float ws = 0.0;
@@ -129,7 +129,7 @@ vec3 getRay(vec2 uv){
     uv = (uv * 2.0 - 1.0) * vec2(Resolution.x / Resolution.y, 1.0);
 	vec3 proj = normalize(vec3(uv.x, uv.y, 1.0) + vec3(uv.x, uv.y, -1.0) * pow(length(uv), 2.0) * 0.05);	
     if(Resolution.x < 400.0) return proj;
-	vec3 ray = rotmat(vec3(0.0, -1.0, 0.0), 3.0 * (2.0 - 1.0)) * proj;
+	vec3 ray = rotmat(vec3(0.0, -1.0, 0.0), 3.0 * (2.0 - 1.0)) * rotmat(vec3(1.0, 0.0, 0.0), 0.6) * proj;
     return ray.xyz;
 }
 
@@ -181,7 +181,7 @@ void main()
 {
     vec2 uv = gl_FragCoord.xy / u_screen_size;
 
-    float waterdepth = 2.1;
+    float waterdepth = 0.6;
 	vec3 wfloor = vec3(0.0, -waterdepth, 0.0);
 	vec3 wceil = vec3(0.0, 0.0, 0.0);
 	vec3 orig = vec3(0.0, 2.0, 0.0);
@@ -312,8 +312,8 @@ new JsEventListener(window, "load", function(e)
     let canvas = new JsCanvasWebGL(window.innerWidth, window.innerHeight);
     canvas.Style.top = "50%";
     canvas.Style.left = "50%";
-    canvas.Style.width = "100%";
-    canvas.Style.height = "100%";
+    canvas.Style.width = "calc(100% + 16px)";
+    canvas.Style.height = "calc(100% + 16px)";
     canvas.Style.position = "absolute";
     canvas.Style.transform = "translate(-50%, -50%)";
     canvas.Style.border = "4px solid #fff";
@@ -341,8 +341,8 @@ new JsEventListener(window, "load", function(e)
     new JsEventInterval(() => {
         
         program.Bind();
-        canvas.Width = window.innerWidth;
-        canvas.Height = window.innerHeight;
+        canvas.Width = window.innerWidth / 4.0;
+        canvas.Height = window.innerHeight / 4.0;
         glViewport(0, 0, canvas.Width, canvas.Height);
         //glClearColor(225 / 255, 1.0, 1.0, 1.0);
         //glClearColor(0.9, 1.0, 1.0, 1.0);
